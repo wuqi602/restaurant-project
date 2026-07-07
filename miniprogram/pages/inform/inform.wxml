@@ -1,0 +1,49 @@
+<view class="notice-page">
+  <!-- 头部 -->
+  <view class="notice-header">
+    <view class="header-left">
+      <text class="notice-title">消息通知</text>
+      <text class="notice-subtitle" wx:if="{{unread_count > 0}}">{{unread_count}} 条未读</text>
+    </view>
+    <button class="read-all-btn {{unread_count ? '' : 'disabled'}}" disabled="{{!unread_count}}" bindtap="markAllRead">全部已读</button>
+  </view>
+
+  <!-- 分类切换 -->
+  <scroll-view class="tab-bar" scroll-x enable-flex>
+    <view wx:for="{{tabs}}" wx:key="type" class="tab-item {{currentTab === item.type ? 'active' : ''}}" data-type="{{item.type}}" bindtap="switchTab">{{item.name}}</view>
+  </scroll-view>
+
+  <!-- 通知列表 -->
+  <scroll-view class="notice-list" scroll-y enable-back-to-top>
+    <view wx:if="{{notices.length === 0}}" class="empty-state">
+      <text class="empty-icon">📬</text>
+      <text class="empty-text">暂无通知</text>
+    </view>
+
+    <view wx:for="{{notices}}" wx:key="id" class="notice-card {{item.read ? 'read' : ''}} {{item.open ? 'expanded' : ''}}" data-id="{{item.id}}" bindtap="onToggle">
+      <!-- 左侧类型图标 -->
+      <view class="card-icon {{item.type}}">
+        <text wx:if="{{item.type === 'promotion'}}">🎉</text>
+        <text wx:elif="{{item.type === 'order'}}">📦</text>
+        <text wx:elif="{{item.type === 'system'}}">⚙️</text>
+        <text wx:else>📢</text>
+      </view>
+
+      <!-- 中间内容 -->
+      <view class="card-body">
+        <view class="card-top">
+          <text class="card-tag {{item.type}}">{{item.tag}}</text>
+          <text class="card-date">{{item.date}}</text>
+          <view class="unread-dot" wx:if="{{!item.read}}"></view>
+        </view>
+        <text class="card-title">{{item.title}}</text>
+        <text class="card-desc" wx:if="{{!item.open}}">{{item.desc}}</text>
+        <view class="card-detail" wx:if="{{item.open}}">
+          <text>{{item.detail}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view style="height: 40rpx;"></view>
+  </scroll-view>
+</view>

@@ -1,0 +1,95 @@
+<!--pages/mine/mine.wxml-->
+<view class="mine-page">
+  <!-- 用户信息头部 -->
+  <view class="user-header">
+    <view class="user-card">
+      <image wx:if="{{userInfo.avatar}}" class="avatar" src="{{userInfo.avatar}}" mode="aspectFill" bindtap="goLogin" />
+      <view wx:else class="avatar avatar-placeholder" bindtap="goLogin">👤</view>
+      <view class="user-info">
+        <text class="nickname">{{userInfo.nickname || '点击登录'}}</text>
+        <text class="uid">{{userInfo.uid ? 'ID: ' + userInfo.uid : '登录享受更多优惠'}}</text>
+      </view>
+      <image class="arrow-right" src="/images/menu.png" mode="aspectFit" />
+    </view>
+  </view>
+
+  <!-- 数据统计卡片 -->
+  <view class="stats-row">
+    <view class="stat-item" bindtap="goOrders">
+      <text class="stat-num">{{stats.orders || 0}}</text>
+      <text class="stat-label">全部订单</text>
+    </view>
+    <view class="stat-item" bindtap="goOrders" data-status="pending">
+      <text class="stat-num">{{stats.pending || 0}}</text>
+      <text class="stat-label">待处理</text>
+    </view>
+    <view class="stat-item" bindtap="goCoupons">
+      <text class="stat-num">{{stats.coupons || 0}}</text>
+      <text class="stat-label">优惠券</text>
+    </view>
+    <view class="stat-item" bindtap="goPoints">
+      <text class="stat-num">{{stats.points || 0}}</text>
+      <text class="stat-label">积分</text>
+    </view>
+  </view>
+
+  <!-- 功能菜单列表 -->
+  <view class="menu-section">
+    <view class="menu-group">
+      <view class="menu-title">我的订单</view>
+      <view class="menu-item" bindtap="goOrders">
+        <text class="menu-icon">📋</text>
+        <text class="menu-text">全部订单</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goOrders" data-status="pending">
+        <text class="menu-icon">⏳</text>
+        <text class="menu-text">待处理订单</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goOrders" data-status="completed">
+        <text class="menu-icon">✅</text>
+        <text class="menu-text">已完成订单</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="menu-group">
+      <view class="menu-title">我的服务</view>
+      <view class="menu-item" bindtap="goAddress">
+        <text class="menu-icon">📍</text>
+        <text class="menu-text">收货地址</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goFavorites">
+        <text class="menu-icon">❤️</text>
+        <text class="menu-text">我的收藏</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goCoupons">
+        <text class="menu-icon">🎫</text>
+        <text class="menu-text">优惠券</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goPoints">
+        <text class="menu-icon">⭐</text>
+        <text class="menu-text">积分商城</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+
+    <view class="menu-group">
+      <view class="menu-title">其他</view>
+      <view class="menu-item" bindtap="goSettings">
+        <text class="menu-icon">⚙️</text>
+        <text class="menu-text">设置</text>
+        <text class="menu-arrow">›</text>
+      </view>
+      <view class="menu-item" bindtap="goAbout">
+        <text class="menu-icon">ℹ️</text>
+        <text class="menu-text">关于我们</text>
+        <text class="menu-arrow">›</text>
+      </view>
+    </view>
+  </view>
+</view>

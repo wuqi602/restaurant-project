@@ -1,0 +1,10 @@
+<!-- pages/index/index.wxml -->
+<view class="container">
+  <!-- 背景图（铺满全屏） -->
+  <image class="bg-image" src="/images/home_bg.jpg" mode="aspectFill"></image>
+  
+  <!-- 按钮容器（覆盖在背景图之上） -->
+  <view class="overlay">
+    <button class="enter-btn" bindtap="goToMenu">进入店铺</button>
+  </view>
+</view>
