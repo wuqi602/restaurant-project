@@ -136,6 +136,7 @@ app.post('/api/cart/add', (req, res) => {
 // 更新数量
 app.post('/api/cart/update', (req, res) => {
   const { id, quantity } = req.body
+  if (!id) return res.json({ code: 1, message: '缺少商品ID' })
   if (quantity <= 0) {
     cartItems = cartItems.filter(item => item.id !== id)
   } else {
@@ -148,6 +149,7 @@ app.post('/api/cart/update', (req, res) => {
 // 删除购物车项
 app.post('/api/cart/remove', (req, res) => {
   const { id } = req.body
+  if (!id) return res.json({ code: 1, message: '缺少商品ID' })
   cartItems = cartItems.filter(item => item.id !== id)
   res.json({ code: 0, message: '已删除' })
 })
@@ -213,6 +215,7 @@ app.get('/api/order/:id', (req, res) => {
 app.post('/api/order/:id/pay', (req, res) => {
   const order = orders.find(o => o.id === req.params.id)
   if (!order) return res.json({ code: 1, message: '订单不存在' })
+  if (order.status !== 'pending') return res.json({ code: 1, message: '订单状态不允许支付' })
   order.status = 'paid'
   order.statusText = '已支付'
   order.payTime = new Date().toLocaleString('zh-CN')
@@ -223,6 +226,7 @@ app.post('/api/order/:id/pay', (req, res) => {
 app.post('/api/order/:id/cancel', (req, res) => {
   const order = orders.find(o => o.id === req.params.id)
   if (!order) return res.json({ code: 1, message: '订单不存在' })
+  if (order.status !== 'pending') return res.json({ code: 1, message: '仅待支付订单可取消' })
   order.status = 'cancelled'
   order.statusText = '已取消'
   res.json({ code: 0, message: '已取消' })

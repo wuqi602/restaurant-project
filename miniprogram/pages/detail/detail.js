@@ -10,6 +10,8 @@ Page({
   onLoad(options) {
     if (options.id) {
       this.loadProduct(options.id)
+    } else {
+      this.setData({ loading: false, product: null })
     }
   },
 

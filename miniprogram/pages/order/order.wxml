@@ -1,8 +1,8 @@
 <view class="page-order">
   <view class="tabs">
     <view wx:for="{{tabs}}" wx:key="status"
-      class="tab {{currentTab === status ? 'active' : ''}}"
-      data-status="{{status}}" bindtap="switchTab">
+      class="tab {{currentTab === item.status ? 'active' : ''}}"
+      data-status="{{item.status}}" bindtap="switchTab">
       {{item.name}}
     </view>
   </view>
@@ -18,7 +18,8 @@
         <text class="order-status {{item.status}}">{{item.statusText}}</text>
       </view>
       <view wx:for="{{item.items}}" wx:for-item="oi" wx:key="id" class="item-row">
-        <image class="item-img" src="{{oi.image}}" mode="aspectFill"></image>
+        <image wx:if="{{oi.image}}" class="item-img" src="{{oi.image}}" mode="aspectFill"></image>
+        <view wx:else class="item-img item-img-placeholder">🍔</view>
         <view class="item-info">
           <view class="item-name">{{oi.name}}</view>
           <view class="item-price">¥{{oi.price}}</view>

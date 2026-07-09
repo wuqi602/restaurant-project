@@ -33,6 +33,9 @@ Page({
             wx.hideLoading()
             wx.showToast({ title: '支付成功', icon: 'success' })
             this.loadOrder(order.id)
+          }).catch(() => {
+            wx.hideLoading()
+            wx.showToast({ title: '支付失败', icon: 'none' })
           })
         }
       }
@@ -49,6 +52,8 @@ Page({
           api.cancelOrder(order.id).then(() => {
             wx.showToast({ title: '已取消', icon: 'success' })
             this.loadOrder(order.id)
+          }).catch(() => {
+            wx.showToast({ title: '取消失败', icon: 'none' })
           })
         }
       }
