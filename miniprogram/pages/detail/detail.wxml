@@ -1,36 +1,34 @@
 <view class="page-detail">
   <view wx:if="{{loading}}" class="loading"><text>加载中...</text></view>
 
-  <block wx:else>
-    <view wx:if="{{!product}}" class="empty">
-      <text>商品不存在</text>
+  <view wx:elif="{{!product}}" class="empty">
+    <text>商品不存在</text>
+  </view>
+
+  <block wx:elif="{{product}}">
+    <view class="detail-img">
+      <image wx:if="{{product.image}}" src="{{product.image}}" mode="aspectFill"></image>
+      <text wx:else class="img-placeholder">🍔</text>
     </view>
 
-    <block wx:else>
-      <view class="detail-img">
-        <image wx:if="{{product.image}}" src="{{product.image}}" mode="aspectFill"></image>
-        <text wx:else class="img-placeholder">🍔</text>
-      </view>
+    <view class="detail-body">
+      <view class="detail-name">{{product.name}}</view>
+      <view class="detail-price">¥{{product.price}}</view>
+      <view class="detail-desc">{{product.description}}</view>
 
-      <view class="detail-body">
-        <view class="detail-name">{{product.name}}</view>
-        <view class="detail-price">¥{{product.price}}</view>
-        <view class="detail-desc">{{product.description}}</view>
-
-        <view class="quantity-section">
-          <text class="label">数量</text>
-          <view class="quantity-control">
-            <view class="qty-btn {{quantity <= 1 ? 'disabled' : ''}}" bindtap="onDecrease">−</view>
-            <text class="qty-num">{{quantity}}</text>
-            <view class="qty-btn" bindtap="onIncrease">+</view>
-          </view>
+      <view class="quantity-section">
+        <text class="label">数量</text>
+        <view class="quantity-control">
+          <view class="qty-btn {{quantity <= 1 ? 'disabled' : ''}}" bindtap="onDecrease">−</view>
+          <text class="qty-num">{{quantity}}</text>
+          <view class="qty-btn" bindtap="onIncrease">+</view>
         </view>
       </view>
+    </view>
 
-      <view class="bottom-bar">
-        <view class="btn-cart" bindtap="onAddToCart">加入购物车</view>
-        <view class="btn-buy" bindtap="onBuyNow">立即购买</view>
-      </view>
-    </block>
+    <view class="bottom-bar">
+      <view class="btn-cart" bindtap="onAddToCart">加入购物车</view>
+      <view class="btn-buy" bindtap="onBuyNow">立即购买</view>
+    </view>
   </block>
 </view>

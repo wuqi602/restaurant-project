@@ -1,56 +1,54 @@
 <view class="page-order-detail">
   <view wx:if="{{loading}}" class="loading"><text>加载中...</text></view>
 
-  <block wx:else>
-    <view wx:if="{{!order}}" class="empty"><text>订单不存在</text></view>
+  <view wx:elif="{{!order}}" class="empty"><text>订单不存在</text></view>
 
-    <block wx:else>
-      <view class="status-bar {{order.status}}">
-        <view class="status-icon">
-          <text wx:if="{{order.status === 'pending'}}">⏳</text>
-          <text wx:elif="{{order.status === 'paid'}}">✅</text>
-          <text wx:elif="{{order.status === 'completed'}}">✅</text>
-          <text wx:elif="{{order.status === 'cancelled'}}">❌</text>
-          <text wx:else>🚚</text>
+  <block wx:elif="{{order}}">
+    <view class="status-bar {{order.status}}">
+      <view class="status-icon">
+        <text wx:if="{{order.status === 'pending'}}">⏳</text>
+        <text wx:elif="{{order.status === 'paid'}}">✅</text>
+        <text wx:elif="{{order.status === 'completed'}}">✅</text>
+        <text wx:elif="{{order.status === 'cancelled'}}">❌</text>
+        <text wx:else>🚚</text>
+      </view>
+      <view class="status-text">{{order.statusText}}</view>
+      <view class="status-time" wx:if="{{order.payTime}}">支付时间：{{order.payTime}}</view>
+    </view>
+
+    <view class="section">
+      <view class="section-label">收货信息</view>
+      <view class="address-name">{{order.address.name}}　{{order.address.phone}}</view>
+      <view class="address-detail">{{order.address.detail}}</view>
+    </view>
+
+    <view class="section">
+      <view class="section-label">商品清单</view>
+      <view wx:for="{{order.items}}" wx:key="id" class="item-row">
+        <image class="item-img" src="{{item.image}}" mode="aspectFill"></image>
+        <view class="item-info">
+          <view class="item-name">{{item.name}}</view>
+          <view class="item-price">¥{{item.price}}</view>
         </view>
-        <view class="status-text">{{order.statusText}}</view>
-        <view class="status-time" wx:if="{{order.payTime}}">支付时间：{{order.payTime}}</view>
+        <text class="item-qty">×{{item.quantity}}</text>
       </view>
+    </view>
 
-      <view class="section">
-        <view class="section-label">收货信息</view>
-        <view class="address-name">{{order.address.name}}　{{order.address.phone}}</view>
-        <view class="address-detail">{{order.address.detail}}</view>
+    <view class="section summary-section">
+      <view class="summary-row"><text>商品小计</text><text>¥{{order.totalPrice}}</text></view>
+      <view class="summary-row" wx:if="{{order.discount > 0}}">
+        <text>优惠</text><text class="discount">-¥{{order.discount}}</text>
       </view>
+      <view class="summary-row"><text>配送费</text><text>免费</text></view>
+      <view class="summary-divider"></view>
+      <view class="summary-row total"><text>实付</text><text class="total-price">¥{{order.finalPrice}}</text></view>
+    </view>
 
-      <view class="section">
-        <view class="section-label">商品清单</view>
-        <view wx:for="{{order.items}}" wx:key="id" class="item-row">
-          <image class="item-img" src="{{item.image}}" mode="aspectFill"></image>
-          <view class="item-info">
-            <view class="item-name">{{item.name}}</view>
-            <view class="item-price">¥{{item.price}}</view>
-          </view>
-          <text class="item-qty">×{{item.quantity}}</text>
-        </view>
-      </view>
-
-      <view class="section summary-section">
-        <view class="summary-row"><text>商品小计</text><text>¥{{order.totalPrice}}</text></view>
-        <view class="summary-row" wx:if="{{order.discount > 0}}">
-          <text>优惠</text><text class="discount">-¥{{order.discount}}</text>
-        </view>
-        <view class="summary-row"><text>配送费</text><text>免费</text></view>
-        <view class="summary-divider"></view>
-        <view class="summary-row total"><text>实付</text><text class="total-price">¥{{order.finalPrice}}</text></view>
-      </view>
-
-      <view class="section">
-        <view class="info-row"><text>订单编号</text><text class="info-val">{{order.id}}</text></view>
-        <view class="info-row"><text>下单时间</text><text class="info-val">{{order.createTime}}</text></view>
-        <view class="info-row" wx:if="{{order.remark}}"><text>备注</text><text class="info-val">{{order.remark}}</text></view>
-      </view>
-    </block>
+    <view class="section">
+      <view class="info-row"><text>订单编号</text><text class="info-val">{{order.id}}</text></view>
+      <view class="info-row"><text>下单时间</text><text class="info-val">{{order.createTime}}</text></view>
+      <view class="info-row" wx:if="{{order.remark}}"><text>备注</text><text class="info-val">{{order.remark}}</text></view>
+    </view>
   </block>
 
   <view class="bottom-bar" wx:if="{{order && order.status === 'pending'}}">
