@@ -88,19 +88,25 @@ Page({
     return null
   },
 
-  onFoodTap(e) {
+  onCardTap(e) {
     const id = Number(e.currentTarget.dataset.id)
-    wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
-  },
 
-  onAddToCart(e) {
-    const id = Number(e.currentTarget.dataset.id)
-    const food = this._findFood(id)
-    if (!food) return
-    api.addToCart({ id: food.id, name: food.name, price: food.price, image: food.image || '' }).then(() => {
-      wx.showToast({ title: '已添加：' + food.name, icon: 'success', duration: 1000 })
-    }).catch(() => {
-      wx.showToast({ title: '添加失败', icon: 'none' })
-    })
+    // 点击的是 + 按钮
+    if (e.currentTarget.dataset.x === 'add') {
+      const food = this._findFood(id)
+      if (!food) return
+      api.addToCart({ id: food.id, name: food.name, price: food.price, image: food.image || '' }).then(() => {
+        wx.showToast({ title: '已添加：' + food.name, icon: 'success', duration: 1000 })
+      }).catch(() => {
+        wx.showToast({ title: '添加失败', icon: 'none' })
+      })
+      return
+    }
+
+    // 事件从 + 按钮冒泡到卡片 → 忽略
+    if (e.target.dataset.x === 'add') return
+
+    // 点击卡片 → 跳转详情
+    wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
   }
 })
