@@ -136,11 +136,12 @@ app.post('/api/cart/add', (req, res) => {
 // 更新数量
 app.post('/api/cart/update', (req, res) => {
   const { id, quantity } = req.body
-  if (!id) return res.json({ code: 1, message: '缺少商品ID' })
+  const numId = Number(id)
+  if (!numId) return res.json({ code: 1, message: '缺少商品ID' })
   if (quantity <= 0) {
-    cartItems = cartItems.filter(item => item.id !== id)
+    cartItems = cartItems.filter(item => item.id !== numId)
   } else {
-    const item = cartItems.find(item => item.id === id)
+    const item = cartItems.find(item => item.id === numId)
     if (item) item.quantity = quantity
   }
   res.json({ code: 0, message: 'ok' })
@@ -149,8 +150,9 @@ app.post('/api/cart/update', (req, res) => {
 // 删除购物车项
 app.post('/api/cart/remove', (req, res) => {
   const { id } = req.body
-  if (!id) return res.json({ code: 1, message: '缺少商品ID' })
-  cartItems = cartItems.filter(item => item.id !== id)
+  const numId = Number(id)
+  if (!numId) return res.json({ code: 1, message: '缺少商品ID' })
+  cartItems = cartItems.filter(item => item.id !== numId)
   res.json({ code: 0, message: '已删除' })
 })
 

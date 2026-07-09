@@ -55,7 +55,7 @@ Page({
 
   // 展开/收起详情
   onToggle(e) {
-    const id = e.currentTarget.dataset.id
+    const id = Number(e.currentTarget.dataset.id)
     const notices = this.data.notices.map(item => {
       if (item.id === id) {
         const opened = !item.open

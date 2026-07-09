@@ -29,7 +29,7 @@ Page({
 
   // 增加数量
   onIncrease(e) {
-    const id = e.currentTarget.dataset.id
+    const id = Number(e.currentTarget.dataset.id)
     const item = this.data.cartList.find(item => item.id === id)
     if (item) {
       api.updateCart(id, item.quantity + 1).then(() => {
@@ -42,7 +42,7 @@ Page({
 
   // 减少数量
   onDecrease(e) {
-    const id = e.currentTarget.dataset.id
+    const id = Number(e.currentTarget.dataset.id)
     const item = this.data.cartList.find(item => item.id === id)
     if (item) {
       api.updateCart(id, item.quantity - 1).then(() => {
@@ -55,7 +55,7 @@ Page({
 
   // 删除商品
   onRemoveItem(e) {
-    const id = e.currentTarget.dataset.id
+    const id = Number(e.currentTarget.dataset.id)
     api.removeFromCart(id).then(() => {
       this.fetchCartData()
     }).catch(() => {
