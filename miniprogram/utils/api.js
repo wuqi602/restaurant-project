@@ -1,3 +1,5 @@
+// 后端 API 地址：开发时改为本机局域网 IP（终端运行 ipconfig 查看 IPv4 地址）
+// 真机调试时手机和电脑必须在同一 WiFi 下
 const BASE_URL = 'http://192.168.224.141:3000'
 
 function request(url, method = 'GET', data = {}) {

@@ -12,14 +12,17 @@ Page({
   },
 
   // 从后端获取购物车数据
-  fetchCartData() {
+  fetchCartData(showLoading = false) {
+    if (showLoading) wx.showLoading({ title: '加载中...' })
     api.getCart().then((data) => {
+      if (showLoading) wx.hideLoading()
       this.setData({
         cartList: data.cartList,
         totalPrice: data.totalPrice,
         totalCount: data.totalCount
       })
     }).catch(() => {
+      if (showLoading) wx.hideLoading()
       wx.showToast({ title: '获取购物车失败', icon: 'none' })
     })
   },

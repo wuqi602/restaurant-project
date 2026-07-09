@@ -8,7 +8,8 @@
     "pages/detail/detail",
     "pages/checkout/checkout",
     "pages/order/order",
-    "pages/order-detail/order-detail"
+    "pages/order-detail/order-detail",
+    "pages/logs/logs"
   ],
   "window": {
     "navigationBarTextStyle": "black",

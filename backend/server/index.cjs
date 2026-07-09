@@ -68,7 +68,7 @@ app.get('/api/product/:id', (req, res) => {
     const found = cat.find(item => item.id === id)
     if (found) return res.json({ code: 0, data: found })
   }
-  res.status(404).json({ code: 1, message: '商品不存在' })
+  res.json({ code: 1, message: '商品不存在' })
 })
 
 // 获取通知列表
@@ -106,7 +106,7 @@ app.get('/api/user', (req, res) => {
   })
 })
 
-// ========== 购物车相关（基于 session 的临时购物车）==========
+// ========== 购物车相关（基于内存的临时购物车，生产环境需替换为数据库 + 用户隔离）==========
 let cartItems = [
   { id: 101, name: '招牌牛肉堡', price: 32.0, image: `${IMG}/signature_beef_burger.png`, quantity: 2 },
   { id: 301, name: '黄金薯条', price: 12.0, image: `${IMG}/fries.png`, quantity: 1 }
@@ -122,6 +122,7 @@ app.get('/api/cart', (req, res) => {
 // 添加/更新购物车
 app.post('/api/cart/add', (req, res) => {
   const { id, name, price, image, quantity = 1 } = req.body
+  if (!id || !name || typeof price !== 'number') return res.json({ code: 1, message: '参数不完整' })
   const exist = cartItems.find(item => item.id === id)
   if (exist) {
     exist.quantity += quantity
@@ -157,7 +158,7 @@ app.post('/api/cart/clear', (req, res) => {
   res.json({ code: 0, message: '已清空' })
 })
 
-// ========== 订单相关 ==========
+// ========== 订单相关（基于内存数组，生产环境需替换为数据库 + 用户隔离）==========
 const defaultAddress = { name: '刘先生', phone: '138****8888', detail: '广东省广州市天河区科技园A座1001' }
 let orders = [
   {
@@ -177,6 +178,9 @@ let orders = [
 app.post('/api/order/create', (req, res) => {
   const { items, remark } = req.body
   if (!items || items.length === 0) return res.json({ code: 1, message: '下单商品不能为空' })
+  for (const i of items) {
+    if (!i.id || !i.name || typeof i.price !== 'number' || !i.quantity) return res.json({ code: 1, message: '商品参数不完整' })
+  }
   const totalPrice = items.reduce((s, i) => s + i.price * i.quantity, 0)
   const discount = totalPrice >= 50 ? 10 : (totalPrice >= 30 ? 5 : 0)
   const order = {
@@ -201,7 +205,7 @@ app.get('/api/orders', (req, res) => {
 // 获取订单详情
 app.get('/api/order/:id', (req, res) => {
   const order = orders.find(o => o.id === req.params.id)
-  if (!order) return res.status(404).json({ code: 1, message: '订单不存在' })
+  if (!order) return res.json({ code: 1, message: '订单不存在' })
   res.json({ code: 0, data: order })
 })
 
