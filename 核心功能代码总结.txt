@@ -1,0 +1,414 @@
+================================================================================
+  好又来西餐厅 — 核心功能代码总结
+  （项目：微信小程序 + Express后端 + Vue管理后台）
+================================================================================
+
+
+一、API 服务层（微信小程序）
+===========================
+文件：miniprogram/utils/api.js
+
+const BASE_URL = 'http://192.168.224.141:3000'
+
+function request(url, method = 'GET', data = {}) {
+  const ts = method === 'GET' ? (url.includes('?') ? '&_t=' : '?_t=') + Date.now() : ''
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: BASE_URL + url + ts,
+      method, data,
+      success: (res) => {
+        if (res.data.code === 0) resolve(res.data.data)
+        else reject(res.data)
+      },
+      fail: reject
+    })
+  })
+}
+
+module.exports = {
+  getMenu()          { return request('/api/menu') },
+  getCategories()    { return request('/api/categories') },
+  getNotices(type)   { return request('/api/notices' + (type && type !== 'all' ? '?type=' + type : '')) },
+  markAllRead()      { return request('/api/notices/read-all', 'POST') },
+  getUserInfo()      { return request('/api/user') },
+  getCart()          { return request('/api/cart') },
+  addToCart(item)    { return request('/api/cart/add', 'POST', item) },
+  updateCart(id, q)  { return request('/api/cart/update', 'POST', { id, quantity: q }) },
+  removeFromCart(id) { return request('/api/cart/remove', 'POST', { id }) },
+  clearCart()        { return request('/api/cart/clear', 'POST') }
+}
+
+
+二、菜单页（最核心 —— 左分类 + 右菜品双栏联动）
+==============================================
+文件：pages/menu/menu.wxml
+
+<!-- 顶部导航栏 -->
+<view class="top-nav">
+  <view class="shop-info">
+    <view class="shop-name">好又来西餐厅<text class="tag">外卖</text></view>
+    <view class="announcement"><text class="icon">📢</text> 满30减10，满20减5，新用户无门槛立减10元！</view>
+  </view>
+  <view class="icon-search">🔍</view>
+</view>
+
+<!-- 主体：左分类 + 右列表 -->
+<view class="main-body">
+  <!-- 左侧分类滚动区 -->
+  <scroll-view class="left-category" scroll-y scroll-into-view="{{leftToView}}" enhanced show-scrollbar="{{false}}">
+    <view
+      wx:for="{{categories}}" wx:key="id"
+      id="cat-item-{{index}}"
+      class="cat-item {{currentCategoryIndex === index ? 'active' : ''}}"
+      data-index="{{index}}" bindtap="onCategoryTap"
+    >{{item.name}}</view>
+  </scroll-view>
+
+  <!-- 右侧菜品滚动区 -->
+  <scroll-view class="right-menu" scroll-y scroll-into-view="{{rightToView}}"
+    bindscroll="onRightScroll" enhanced show-scrollbar="{{false}}">
+    <view wx:for="{{menuList}}" wx:for-item="category" wx:for-index="catIdx" wx:key="*this" id="cat-{{catIdx}}">
+      <view class="section-title">{{categories[catIdx].name}}</view>
+      <view wx:for="{{category}}" wx:for-item="food" wx:key="id">
+        <view class="food-card">
+          <view class="food-img">
+            <image wx:if="{{food.image}}" src="{{food.image}}" mode="aspectFill" style="width:100%;height:100%;border-radius:12rpx;"></image>
+            <text wx:else>🍔</text>
+          </view>
+          <view class="food-info">
+            <view class="food-name">{{food.name}}</view>
+            <view class="food-desc">{{food.description}}</view>
+            <view class="food-bottom">
+              <view class="food-price">¥{{food.price}}</view>
+              <view class="btn-add" bindtap="onAddToCart" data-item="{{food}}">+</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+
+
+三、菜单页 JS（分类联动+加入购物车）
+===================================
+文件：pages/menu/menu.js
+
+const api = require('../../utils/api')
+
+Page({
+  data: { currentCategoryIndex: 0, categories: [], menuList: [], rightToView: '', leftToView: '', categoryTops: [] },
+
+  onLoad() { this.fetchMenuData() },
+  onShow() { this.fetchMenuData() },
+  onPullDownRefresh() { this.fetchMenuData() },
+
+  fetchMenuData() {
+    wx.showLoading({ title: '菜单加载中...' })
+    api.getMenu().then((data) => {
+      wx.hideLoading()
+      wx.stopPullDownRefresh()
+      this.setData({ categories: data.categories || [], menuList: data.menuList || [] }, () => this._calcCategoryTops())
+    }).catch(() => {
+      wx.hideLoading()
+      wx.stopPullDownRefresh()
+      wx.showToast({ title: '加载失败，请重试', icon: 'none' })
+      this.setData({ categories: [], menuList: [] })
+    })
+  },
+
+  // 点击左侧分类 → 右侧滚到对应区域
+  onCategoryTap(e) {
+    const index = Number(e.currentTarget.dataset.index)
+    if (index === this.data.currentCategoryIndex) return
+    this.setData({ currentCategoryIndex: index, rightToView: 'cat-' + index, leftToView: 'cat-item-' + index })
+  },
+
+  // 右侧滚动时 → 左侧高亮联动
+  onRightScroll(e) {
+    const top = e.detail.scrollTop
+    const tops = this.data.categoryTops
+    if (tops.length === 0) return
+    let active = 0
+    for (let i = tops.length - 1; i >= 0; i--) {
+      if (top >= tops[i] - 30) { active = i; break }
+    }
+    if (active !== this.data.currentCategoryIndex) {
+      this.setData({ currentCategoryIndex: active, leftToView: 'cat-item-' + active })
+    }
+  },
+
+  // 计算每个分类距顶部距离
+  _calcCategoryTops() {
+    const query = wx.createSelectorQuery()
+    query.selectAll('.section-title').boundingClientRect()
+    query.selectViewport().scrollOffset()
+    query.exec((res) => {
+      const rects = res[0] || []
+      const tops = rects.map(r => r.top - (res[1]?.scrollTop || 0))
+      this.setData({ categoryTops: tops })
+    })
+  },
+
+  onAddToCart(e) {
+    const item = e.currentTarget.dataset.item
+    api.addToCart({ id: item.id, name: item.name, price: item.price, image: item.image || '' }).then(() => {
+      wx.showToast({ title: '已添加：' + item.name, icon: 'success', duration: 1000 })
+    }).catch(() => {
+      wx.showToast({ title: '添加失败', icon: 'none' })
+    })
+  }
+})
+
+
+四、购物车页
+============
+文件：pages/cart/cart.js
+
+const api = require('../../utils/api')
+
+Page({
+  data: { cartList: [], totalPrice: 0, totalCount: 0 },
+
+  onShow() { this.fetchCartData() },
+
+  fetchCartData() {
+    api.getCart().then((data) => {
+      this.setData({ cartList: data.cartList, totalPrice: data.totalPrice, totalCount: data.totalCount })
+    }).catch(() => {
+      wx.showToast({ title: '获取购物车失败', icon: 'none' })
+    })
+  },
+
+  onIncrease(e) {
+    const id = e.currentTarget.dataset.id
+    const item = this.data.cartList.find(item => item.id === id)
+    if (item) api.updateCart(id, item.quantity + 1).then(() => this.fetchCartData())
+  },
+
+  onDecrease(e) {
+    const id = e.currentTarget.dataset.id
+    const item = this.data.cartList.find(item => item.id === id)
+    if (item) api.updateCart(id, item.quantity - 1).then(() => this.fetchCartData())
+  },
+
+  onRemoveItem(e) {
+    const id = e.currentTarget.dataset.id
+    api.removeFromCart(id).then(() => this.fetchCartData())
+  },
+
+  onClearCart() {
+    wx.showModal({
+      title: '提示', content: '确定要清空购物车吗？',
+      success: (res) => { if (res.confirm) api.clearCart().then(() => this.fetchCartData()) }
+    })
+  },
+
+  onCheckout() {
+    if (this.data.cartList.length === 0) { wx.showToast({ title: '购物车为空', icon: 'none' }); return }
+    wx.showToast({ title: '跳转结算页', icon: 'none' })
+  }
+})
+
+
+五、消息通知页
+==============
+文件：pages/inform/inform.js
+
+const api = require('../../utils/api')
+
+Page({
+  data: {
+    notices: [], unread_count: 0, notice_summary: '',
+    tabs: [
+      { type: 'all', name: '全部' }, { type: 'promotion', name: '优惠' },
+      { type: 'order', name: '订单' }, { type: 'system', name: '系统' }, { type: 'announce', name: '公告' }
+    ],
+    currentTab: 'all'
+  },
+
+  onLoad() { this.loadNotices() },
+  onShow() { this.loadNotices() },
+  onPullDownRefresh() { this.loadNotices() },
+
+  switchTab(e) {
+    const type = e.currentTarget.dataset.type
+    if (type === this.data.currentTab) return
+    this.setData({ currentTab: type, notices: [] })
+    wx.showLoading({ title: '加载中...' })
+    this.loadNotices(type)
+  },
+
+  loadNotices(type) {
+    const tab = type || this.data.currentTab
+    api.getNotices(tab).then((data) => {
+      wx.hideLoading()
+      wx.stopPullDownRefresh()
+      this.setData({ notices: data.notices, unread_count: data.unread_count, notice_summary: data.notice_summary })
+    }).catch(() => { wx.hideLoading(); wx.stopPullDownRefresh() })
+  },
+
+  onToggle(e) {
+    const id = e.currentTarget.dataset.id
+    const notices = this.data.notices.map(item => {
+      if (item.id === id) {
+        const opened = !item.open
+        if (opened && !item.read) return { ...item, open: opened, read: true }
+        return { ...item, open: opened }
+      }
+      return item
+    })
+    const unread_count = notices.filter(n => !n.read).length
+    this.setData({ notices, unread_count })
+  },
+
+  markAllRead() {
+    const notices = this.data.notices.map(item => ({ ...item, read: true, open: false }))
+    this.setData({ notices, unread_count: 0 })
+    wx.showToast({ title: '已全部标记已读', icon: 'success' })
+  }
+})
+
+
+六、后端 API 服务器（Express）
+==============================
+文件：server/index.cjs（完整代码 165 行）
+
+const express = require('express')
+const cors = require('cors')
+
+const app = express()
+app.use(cors())
+app.use(express.json())
+app.use('/images', express.static(__dirname + '/public/images'))
+
+// ---- 模拟数据 ----
+const categories = [
+  { id: 0, name: '🔥 热销榜' }, { id: 1, name: '🍔 经典汉堡' },
+  { id: 2, name: '🍟 美味小食' }, { id: 3, name: '🥤 饮品' }, { id: 4, name: '🍦 甜品' }
+]
+const IMG = '/images'
+const menuList = [
+  [ { id:101, name:'招牌牛肉堡', price:32, desc:'厚实牛肉饼搭配新鲜蔬菜', image:`${IMG}/signature_beef_burger.png` },
+    { id:102, name:'香辣鸡腿堡', price:30, desc:'香辣鸡腿肉配生菜沙拉酱', image:`${IMG}/spicy_chicken_burger.png` },
+    { id:103, name:'黄金薯条', price:12, desc:'外酥里嫩，经典必点', image:`${IMG}/fries.png` } ],
+  [ { id:201, name:'香辣鸡腿堡', price:30, image:`${IMG}/spicy_chicken_burger.png` },
+    { id:202, name:'招牌牛肉堡', price:32, image:`${IMG}/signature_beef_burger.png` },
+    { id:203, name:'培根芝士牛肉堡', price:36, image:`${IMG}/bacon_burger.png` },
+    { id:204, name:'双层芝士爆牛堡', price:42, image:`${IMG}/double_cheese_burger.png` } ],
+  [ { id:301, name:'黄金薯条', price:12, image:`${IMG}/fries.png` },
+    { id:302, name:'奥尔良烤翅', price:22, image:`${IMG}/chicken_wings.png` },
+    { id:303, name:'凯撒沙拉', price:18, image:`${IMG}/caesar_salad.png` } ],
+  [ { id:401, name:'冰镇可乐', price:8, image:`${IMG}/cola.png` },
+    { id:402, name:'鲜榨柠檬汁', price:12, image:`${IMG}/lemon_juice.png` } ],
+  [ { id:501, name:'巧克力圣代', price:15, image:`${IMG}/chocolate_sundae.png` } ]
+]
+
+// ---- API 路由 ----
+app.get('/api/categories', (req, res) => res.json({ code: 0, data: categories }))
+
+app.get('/api/menu', (req, res) => res.json({ code: 0, data: { categories, menuList } }))
+
+const notices = [  // 8条示例通知
+  { id:1, tag:'优惠', type:'promotion', title:'新用户专享福利', desc:'新用户首单立减15元',
+    detail:'活动期间，新注册用户下单即可享受首单立减15元优惠，可与满减活动叠加使用。', date:'2026-07-07', read:false, open:false },
+  { id:2, tag:'优惠', type:'promotion', title:'满减活动火爆进行中', desc:'满30减10，满20减5', ... },
+  // ... 更多见完整文件
+]
+app.get('/api/notices', (req, res) => {
+  const unread_count = notices.filter(n => !n.read).length
+  const type = req.query.type
+  const filtered = type && type !== 'all' ? notices.filter(n => n.type === type) : notices
+  res.json({ code: 0, data: { notices: filtered, unread_count, notice_summary: `共${filtered.length}条通知` } })
+})
+app.post('/api/notices/read-all', (req, res) => { notices.forEach(n => { n.read = true }); res.json({ code: 0 }) })
+
+app.get('/api/user', (req, res) => {
+  res.json({ code: 0, data: { userInfo: { avatar:'', nickname:'微信用户', uid:'10001' },
+    stats: { orders:12, pending:2, coupons:3, points:520 } } })
+})
+
+// 购物车（内存模拟）
+let cartItems = [
+  { id:101, name:'招牌牛肉堡', price:32, image:`${IMG}/signature_beef_burger.png`, quantity:2 },
+  { id:301, name:'黄金薯条', price:12, image:`${IMG}/fries.png`, quantity:1 }
+]
+app.get('/api/cart', (req, res) => {
+  const totalPrice = cartItems.reduce((sum, i) => sum + i.price * i.quantity, 0)
+  const totalCount = cartItems.reduce((sum, i) => sum + i.quantity, 0)
+  res.json({ code:0, data: { cartList: cartItems, totalPrice: Math.round(totalPrice*100)/100, totalCount } })
+})
+app.post('/api/cart/add', (req, res) => {
+  const { id, name, price, image, quantity=1 } = req.body
+  const exist = cartItems.find(i => i.id === id)
+  if (exist) { exist.quantity += quantity; if (image) exist.image = image }
+  else cartItems.push({ id, name, price, image: image||'', quantity })
+  res.json({ code:0, message:'已添加到购物车' })
+})
+app.post('/api/cart/update', (req, res) => {
+  const { id, quantity } = req.body
+  if (quantity <= 0) cartItems = cartItems.filter(i => i.id !== id)
+  else { const item = cartItems.find(i => i.id === id); if (item) item.quantity = quantity }
+  res.json({ code:0, message:'ok' })
+})
+app.post('/api/cart/remove', (req, res) => {
+  const { id } = req.body
+  cartItems = cartItems.filter(i => i.id !== id)
+  res.json({ code:0, message:'已删除' })
+})
+app.post('/api/cart/clear', (req, res) => { cartItems = []; res.json({ code:0, message:'已清空' }) })
+
+const PORT = 3000
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`API 服务器已启动：http://localhost:${PORT}`)
+})
+
+
+七、Vue 管理后台入口
+====================
+文件：src/main.ts
+
+import { createApp } from 'vue'
+import { createPinia } from 'pinia'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import App from './App.vue'
+import router from './router'
+
+const app = createApp(App)
+app.use(createPinia())
+app.use(router)
+app.use(ElementPlus)
+app.mount('#app')
+
+
+八、服务器启动脚本
+==================
+文件：package.json（scripts 部分）
+
+{
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preapi": "node server/kill-port.cjs",
+    "api": "node server/index.cjs",
+    "preview": "vite preview"
+  }
+}
+
+文件：server/kill-port.cjs
+
+const { exec } = require('child_process')
+exec('netstat -ano | findstr :3000', (err, stdout) => {
+  if (stdout) {
+    const pid = stdout.trim().split(/\s+/).pop()
+    if (pid) { exec('taskkill /F /PID ' + pid, () => {}); console.log('已释放端口 3000') }
+  }
+})
+
+
+================================================================================
+  共 8 个核心模块，覆盖前后端全部主要功能
+  后端启动：cd backend && npm run api
+  小    序：微信开发者工具打开 miniprogram/，修改 api.js 的 BASE_URL
+================================================================================
