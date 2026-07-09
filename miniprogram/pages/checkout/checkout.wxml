@@ -1,0 +1,41 @@
+<view class="page-checkout">
+  <view class="section address-section">
+    <view class="section-label">收货地址</view>
+    <view class="address-info">
+      <view class="address-name">{{address.name}}　{{address.phone}}</view>
+      <view class="address-detail">{{address.detail}}</view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-label">商品清单</view>
+    <view wx:for="{{cartList}}" wx:key="id" class="item-row">
+      <image class="item-img" src="{{item.image}}" mode="aspectFill"></image>
+      <view class="item-info">
+        <view class="item-name">{{item.name}}</view>
+        <view class="item-price">¥{{item.price}}</view>
+      </view>
+      <text class="item-qty">×{{item.quantity}}</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-label">订单备注</view>
+    <input class="remark-input" placeholder="选填，口味偏好等" value="{{remark}}" bindinput="onRemarkInput" />
+  </view>
+
+  <view class="section summary-section">
+    <view class="summary-row"><text>商品小计</text><text>¥{{totalPrice}}</text></view>
+    <view class="summary-row"><text>配送费</text><text>免费</text></view>
+  </view>
+
+  <view class="bottom-bar">
+    <view class="bottom-total">
+      <text class="total-label">合计：</text>
+      <text class="total-price">¥{{totalPrice}}</text>
+    </view>
+    <view class="btn-submit {{submitting ? 'disabled' : ''}}" bindtap="onSubmit">
+      {{submitting ? '提交中...' : '提交订单'}}
+    </view>
+  </view>
+</view>

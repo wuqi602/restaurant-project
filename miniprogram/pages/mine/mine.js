@@ -49,7 +49,7 @@ Page({
 
   goOrders(e) {
     const status = e.currentTarget.dataset.status
-    wx.showToast({ title: status ? '筛选订单: ' + status : '全部订单', icon: 'none' })
+    wx.navigateTo({ url: '/pages/order/order' + (status ? '?status=' + status : '') })
   },
 
   goCoupons() {

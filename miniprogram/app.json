@@ -5,7 +5,10 @@
     "pages/cart/cart",
     "pages/mine/mine",
     "pages/inform/inform",
-    "pages/detail/detail"
+    "pages/detail/detail",
+    "pages/checkout/checkout",
+    "pages/order/order",
+    "pages/order-detail/order-detail"
   ],
   "window": {
     "navigationBarTextStyle": "black",

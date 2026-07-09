@@ -157,6 +157,73 @@ app.post('/api/cart/clear', (req, res) => {
   res.json({ code: 0, message: '已清空' })
 })
 
+// ========== 订单相关 ==========
+const defaultAddress = { name: '刘先生', phone: '138****8888', detail: '广东省广州市天河区科技园A座1001' }
+let orders = [
+  {
+    id: '20260707001', status: 'completed', statusText: '已完成',
+    items: [
+      { id: 101, name: '招牌牛肉堡', price: 32, image: `${IMG}/signature_beef_burger.png`, quantity: 2 },
+      { id: 301, name: '黄金薯条', price: 12, image: `${IMG}/fries.png`, quantity: 1 }
+    ],
+    totalPrice: 76, discount: 10, finalPrice: 66,
+    address: defaultAddress,
+    createTime: '2026-07-07 12:00', payTime: '2026-07-07 12:05',
+    remark: ''
+  }
+]
+
+// 下单
+app.post('/api/order/create', (req, res) => {
+  const { items, remark } = req.body
+  if (!items || items.length === 0) return res.json({ code: 1, message: '下单商品不能为空' })
+  const totalPrice = items.reduce((s, i) => s + i.price * i.quantity, 0)
+  const discount = totalPrice >= 30 ? (totalPrice >= 30 && totalPrice < 50 ? 5 : 10) : 0
+  const order = {
+    id: String(Date.now()), status: 'pending', statusText: '待支付',
+    items, totalPrice: Math.round(totalPrice * 100) / 100,
+    discount, finalPrice: Math.round((totalPrice - discount) * 100) / 100,
+    address: defaultAddress, createTime: new Date().toLocaleString('zh-CN'),
+    payTime: '', remark: remark || ''
+  }
+  orders.unshift(order)
+  cartItems = []
+  res.json({ code: 0, data: { order } })
+})
+
+// 获取订单列表
+app.get('/api/orders', (req, res) => {
+  const status = req.query.status
+  const filtered = status && status !== 'all' ? orders.filter(o => o.status === status) : orders
+  res.json({ code: 0, data: { orders: filtered } })
+})
+
+// 获取订单详情
+app.get('/api/order/:id', (req, res) => {
+  const order = orders.find(o => o.id === req.params.id)
+  if (!order) return res.status(404).json({ code: 1, message: '订单不存在' })
+  res.json({ code: 0, data: order })
+})
+
+// 模拟支付
+app.post('/api/order/:id/pay', (req, res) => {
+  const order = orders.find(o => o.id === req.params.id)
+  if (!order) return res.json({ code: 1, message: '订单不存在' })
+  order.status = 'paid'
+  order.statusText = '已支付'
+  order.payTime = new Date().toLocaleString('zh-CN')
+  res.json({ code: 0, message: '支付成功' })
+})
+
+// 取消订单
+app.post('/api/order/:id/cancel', (req, res) => {
+  const order = orders.find(o => o.id === req.params.id)
+  if (!order) return res.json({ code: 1, message: '订单不存在' })
+  order.status = 'cancelled'
+  order.statusText = '已取消'
+  res.json({ code: 0, message: '已取消' })
+})
+
 // 启动服务器
 const PORT = 3000
 app.listen(PORT, '0.0.0.0', () => {
@@ -164,6 +231,7 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`可用接口：`)
   console.log(`  GET   /api/menu             获取菜单`)
   console.log(`  GET   /api/categories       获取分类`)
+  console.log(`  GET   /api/product/:id      获取商品详情`)
   console.log(`  GET   /api/notices          获取通知`)
   console.log(`  POST  /api/notices/read-all 全部已读`)
   console.log(`  GET   /api/user             获取用户信息`)
@@ -172,4 +240,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`  POST  /api/cart/update      更新数量`)
   console.log(`  POST  /api/cart/remove      删除商品`)
   console.log(`  POST  /api/cart/clear       清空购物车`)
+  console.log(`  POST  /api/order/create     创建订单`)
+  console.log(`  GET   /api/orders           获取订单列表`)
+  console.log(`  GET   /api/order/:id        获取订单详情`)
+  console.log(`  POST  /api/order/:id/pay    模拟支付`)
+  console.log(`  POST  /api/order/:id/cancel 取消订单`)
 })

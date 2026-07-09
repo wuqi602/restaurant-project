@@ -80,6 +80,6 @@ Page({
       wx.showToast({ title: '购物车为空', icon: 'none' })
       return
     }
-    wx.showToast({ title: '跳转结算页', icon: 'none' })
+    wx.navigateTo({ url: '/pages/checkout/checkout' })
   }
 })

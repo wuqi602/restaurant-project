@@ -24,6 +24,25 @@ module.exports = {
   getProductDetail(id) {
     return request('/api/product/' + id)
   },
+  createOrder(data) {
+    return request('/api/order/create', 'POST', data)
+  },
+  getOrders(status) {
+    const q = status && status !== 'all' ? '?status=' + status : ''
+    return request('/api/orders' + q)
+  },
+  getOrderDetail(id) {
+    return request('/api/order/' + id)
+  },
+  payOrder(id) {
+    return request('/api/order/' + id + '/pay', 'POST')
+  },
+  cancelOrder(id) {
+    return request('/api/order/' + id + '/cancel', 'POST')
+  },
+  getProductDetail(id) {
+    return request('/api/product/' + id)
+  },
   getMenu() {
     return request('/api/menu')
   },

@@ -1,0 +1,40 @@
+.page-order-detail { background: #f5f5f5; min-height: 100vh; padding-bottom: 120rpx; }
+.loading, .empty { display: flex; align-items: center; justify-content: center; height: 60vh; color: #999; font-size: 28rpx; }
+
+.status-bar { text-align: center; padding: 40rpx; color: #fff; }
+.status-bar.pending { background: linear-gradient(135deg, #FF6A00, #EE3E0E); }
+.status-bar.paid { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+.status-bar.completed { background: linear-gradient(135deg, #667eea, #764ba2); }
+.status-bar.cancelled { background: linear-gradient(135deg, #ccc, #999); }
+.status-icon { font-size: 64rpx; margin-bottom: 12rpx; }
+.status-text { font-size: 36rpx; font-weight: bold; }
+.status-time { font-size: 24rpx; opacity: 0.8; margin-top: 8rpx; }
+
+.section { background: #fff; margin: 20rpx; border-radius: 16rpx; padding: 30rpx; }
+.section-label { font-size: 28rpx; color: #999; margin-bottom: 20rpx; }
+
+.address-name { font-size: 28rpx; font-weight: bold; color: #333; margin-bottom: 8rpx; }
+.address-detail { font-size: 26rpx; color: #666; }
+
+.item-row { display: flex; align-items: center; padding: 16rpx 0; border-bottom: 1rpx solid #f5f5f5; }
+.item-row:last-child { border-bottom: none; }
+.item-img { width: 80rpx; height: 80rpx; border-radius: 8rpx; background: #eee; margin-right: 20rpx; }
+.item-info { flex: 1; }
+.item-name { font-size: 28rpx; color: #333; }
+.item-price { font-size: 24rpx; color: #FF4D2E; margin-top: 4rpx; }
+.item-qty { font-size: 26rpx; color: #999; }
+
+.summary-row { display: flex; justify-content: space-between; font-size: 26rpx; color: #666; margin-bottom: 12rpx; }
+.summary-row.total { font-size: 30rpx; font-weight: bold; color: #333; }
+.summary-divider { height: 1rpx; background: #f0f0f0; margin: 12rpx 0; }
+.discount { color: #EE3E0E; }
+.total-price { color: #EE3E0E; font-size: 34rpx; }
+
+.info-row { display: flex; justify-content: space-between; font-size: 26rpx; color: #666; margin-bottom: 12rpx; }
+.info-row:last-child { margin-bottom: 0; }
+.info-val { color: #333; max-width: 60%; text-align: right; word-break: break-all; }
+
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: #fff; padding: 20rpx 30rpx; padding-bottom: calc(20rpx + env(safe-area-inset-bottom)); border-top: 1rpx solid #f0f0f0; gap: 20rpx; }
+.bottom-bar view { flex: 1; text-align: center; padding: 18rpx 0; border-radius: 40rpx; font-size: 30rpx; font-weight: bold; }
+.btn-cancel { background: #f5f5f5; color: #666; }
+.btn-pay { background: linear-gradient(135deg, #FF6A00, #EE3E0E); color: #fff; }
