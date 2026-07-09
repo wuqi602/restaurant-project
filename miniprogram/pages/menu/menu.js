@@ -79,18 +79,28 @@ Page({
     })
   },
 
-  onFoodTap(e) {
-    wx.showToast({ title: '点击了卡片', icon: 'none' })
-    const item = e.currentTarget.dataset.item
-    wx.navigateTo({ url: '/pages/detail/detail?id=' + item.id })
+  _findFood(id) {
+    for (const cat of this.data.menuList) {
+      const found = cat.find(f => f.id === id)
+      if (found) return found
+    }
+    return null
   },
 
-  onAddToCart(e) {
-    const item = e.currentTarget.dataset.item
-    api.addToCart({ id: item.id, name: item.name, price: item.price, image: item.image || '' }).then(() => {
-      wx.showToast({ title: '已添加：' + item.name, icon: 'success', duration: 1000 })
-    }).catch(() => {
-      wx.showToast({ title: '添加失败', icon: 'none' })
-    })
+  onFoodTap(e) {
+    wx.showToast({ title: '点击了', icon: 'none' })
+    const id = Number(e.currentTarget.dataset.id)
+    const action = e.currentTarget.dataset.action || ''
+    if (action === 'add') {
+      const food = this._findFood(id)
+      if (!food) return
+      api.addToCart({ id: food.id, name: food.name, price: food.price, image: food.image || '' }).then(() => {
+        wx.showToast({ title: '已添加：' + food.name, icon: 'success', duration: 1000 })
+      }).catch(() => {
+        wx.showToast({ title: '添加失败', icon: 'none' })
+      })
+      return
+    }
+    wx.navigateTo({ url: '/pages/detail/detail?id=' + id })
   }
 })
