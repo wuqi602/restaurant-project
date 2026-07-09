@@ -72,5 +72,9 @@ module.exports = {
   },
   clearCart() {
     return request('/api/cart/clear', 'POST')
+  },
+  getRecommend(cartIds) {
+    const q = cartIds && cartIds.length ? '?cartIds=' + cartIds.join(',') : ''
+    return request('/api/recommend' + q)
   }
 }

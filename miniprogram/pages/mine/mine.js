@@ -79,5 +79,9 @@ Page({
 
   goAbout() {
     wx.showToast({ title: '关于我们', icon: 'none' })
+  },
+
+  goAIRecommend() {
+    wx.switchTab({ url: '/pages/menu/menu' })
   }
 })

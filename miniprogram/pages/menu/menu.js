@@ -7,19 +7,23 @@ Page({
     menuList: [],
     rightToView: '',
     leftToView: '',
-    categoryTops: []
+    categoryTops: [],
+    recommends: []
   },
 
   onLoad() {
     this.fetchMenuData()
+    this.fetchRecommend()
   },
 
   onShow() {
     this.fetchMenuData()
+    this.fetchRecommend()
   },
 
   onPullDownRefresh() {
     this.fetchMenuData()
+    this.fetchRecommend()
   },
 
   fetchMenuData() {
@@ -37,6 +41,16 @@ Page({
       wx.showToast({ title: '加载失败，请重试', icon: 'none' })
       this.setData({ categories: [], menuList: [] })
     })
+  },
+
+  // AI 智能推荐
+  fetchRecommend() {
+    api.getCart().then(cart => {
+      const ids = (cart.cartList || []).map(i => i.id)
+      return api.getRecommend(ids)
+    }).then(data => {
+      this.setData({ recommends: data.recommends || [] })
+    }).catch(() => {})
   },
 
   // 点击左侧分类 → 右侧滚到对应区域

@@ -17,6 +17,25 @@
   <view class="icon-search">🔍</view>
 </view>
 
+<!-- AI 智能推荐（横向滚动） -->
+<view class="ai-recommend" wx:if="{{recommends.length > 0}}">
+  <view class="ai-header">
+    <text class="ai-title">🤖 AI 智能推荐</text>
+    <text class="ai-badge">基于历史订单分析</text>
+  </view>
+  <scroll-view class="ai-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+    <view wx:for="{{recommends}}" wx:key="id" class="ai-card" bindtap="onCardTap" data-id="{{item.id}}">
+      <image wx:if="{{item.image}}" class="ai-img" src="{{item.image}}" mode="aspectFill"></image>
+      <view wx:else class="ai-img ai-img-placeholder">🍔</view>
+      <view class="ai-body">
+        <text class="ai-name">{{item.name}}</text>
+        <text class="ai-price">¥{{item.price}}</text>
+        <text class="ai-reason">{{item.recommendReason}}</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>
+
 <!-- 主体：左分类 + 右列表 -->
 <view class="main-body">
   

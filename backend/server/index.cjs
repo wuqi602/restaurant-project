@@ -234,6 +234,97 @@ app.post('/api/order/:id/cancel', (req, res) => {
   res.json({ code: 0, message: '已取消' })
 })
 
+// ========== AI 智能推荐（基于历史订单频率 + 搭配分析）==========
+
+// 从历史订单中统计商品购买频次
+function buildItemFrequency() {
+  const freq = {} // { itemId: count }
+  for (const order of orders) {
+    if (order.status === 'cancelled') continue
+    for (const item of order.items) {
+      freq[item.id] = (freq[item.id] || 0) + item.quantity
+    }
+  }
+  return freq
+}
+
+// 从历史订单构建"搭配矩阵"：同时出现在同一订单中的商品对
+function buildPairMatrix() {
+  const pairs = {} // "id1-id2": count（已排序，小id在前）
+  for (const order of orders) {
+    if (order.status === 'cancelled') continue
+    const ids = order.items.map(i => i.id).sort((a, b) => a - b)
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const key = ids[i] + '-' + ids[j]
+        pairs[key] = (pairs[key] || 0) + 1
+      }
+    }
+  }
+  return pairs
+}
+
+// 从所有商品数组中按 id 查找商品
+function findProductById(id) {
+  for (const cat of menuList) {
+    const found = cat.find(item => item.id === id)
+    if (found) return found
+  }
+  return null
+}
+
+// AI 推荐接口：GET /api/recommend?cartIds=101,301
+app.get('/api/recommend', (req, res) => {
+  const cartIds = req.query.cartIds
+    ? req.query.cartIds.split(',').map(Number).filter(Boolean)
+    : []
+
+  const freq = buildItemFrequency()
+  const pairs = buildPairMatrix()
+
+  // 1. 计算每个商品的综合得分（频率 * 0.6 + 随机因子 * 0.4）
+  const allIds = new Set()
+  menuList.forEach(cat => cat.forEach(item => allIds.add(item.id)))
+
+  const candidates = []
+  for (const id of allIds) {
+    if (cartIds.includes(id)) continue // 排除已在购物车的
+    const freqScore = freq[id] || 0
+    // 搭配得分：与购物车中商品同时出现的次数之和
+    let pairScore = 0
+    for (const cid of cartIds) {
+      const key = Math.min(id, cid) + '-' + Math.max(id, cid)
+      pairScore += pairs[key] || 0
+    }
+    // 总得分 = 历史频率 * 3 + 搭配得分 * 5 + 小随机扰动
+    const totalScore = freqScore * 3 + pairScore * 5 + Math.random() * 2
+    candidates.push({ id, score: totalScore, freqScore, pairScore })
+  }
+
+  // 按得分降序排列，取前6个
+  candidates.sort((a, b) => b.score - a.score)
+  const top = candidates.slice(0, 6)
+
+  const recommends = top.map(c => {
+    const product = findProductById(c.id)
+    let reason = ''
+    if (c.pairScore > 0) {
+      reason = '常与购物车商品搭配'
+    } else if (c.freqScore > 0) {
+      reason = '历史热销'
+    } else {
+      reason = '新品推荐'
+    }
+    return {
+      ...product,
+      recommendReason: reason,
+      score: Math.round(c.score * 100) / 100
+    }
+  })
+
+  res.json({ code: 0, data: { recommends, total: recommends.length } })
+})
+
 // 启动服务器
 const PORT = 3000
 app.listen(PORT, '0.0.0.0', () => {
@@ -255,4 +346,5 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`  GET   /api/order/:id        获取订单详情`)
   console.log(`  POST  /api/order/:id/pay    模拟支付`)
   console.log(`  POST  /api/order/:id/cancel 取消订单`)
+  console.log(`  GET   /api/recommend        AI智能推荐（?cartIds=101,301）`)
 })

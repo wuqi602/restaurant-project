@@ -146,3 +146,12 @@ page {
   color: #ccc;
   flex-shrink: 0;
 }
+.menu-tag {
+  font-size: 20rpx;
+  color: #667eea;
+  background: rgba(102,126,234,0.1);
+  padding: 2rpx 14rpx;
+  border-radius: 16rpx;
+  margin-right: 12rpx;
+  flex-shrink: 0;
+}
