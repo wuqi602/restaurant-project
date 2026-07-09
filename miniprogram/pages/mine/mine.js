@@ -7,10 +7,15 @@ Page({
   },
 
   onLoad() {
+    this._firstLoad = true
     this.loadUserData()
   },
 
   onShow() {
+    if (this._firstLoad) {
+      this._firstLoad = false
+      return
+    }
     this.loadStats()
   },
 

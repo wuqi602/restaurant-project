@@ -71,10 +71,11 @@ Page({
   _calcCategoryTops() {
     const query = wx.createSelectorQuery()
     query.selectAll('.section-title').boundingClientRect()
-    query.selectViewport().scrollOffset()
+    query.select('.right-menu').boundingClientRect()
     query.exec((res) => {
       const rects = res[0] || []
-      const tops = rects.map(r => r.top - (res[1]?.scrollTop || 0))
+      const scrollViewTop = res[1] ? res[1].top : 0
+      const tops = rects.map(r => r.top - scrollViewTop)
       this.setData({ categoryTops: tops })
     })
   },

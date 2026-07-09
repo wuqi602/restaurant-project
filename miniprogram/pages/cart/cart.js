@@ -31,6 +31,8 @@ Page({
     if (item) {
       api.updateCart(id, item.quantity + 1).then(() => {
         this.fetchCartData()
+      }).catch(() => {
+        wx.showToast({ title: '操作失败', icon: 'none' })
       })
     }
   },
@@ -42,6 +44,8 @@ Page({
     if (item) {
       api.updateCart(id, item.quantity - 1).then(() => {
         this.fetchCartData()
+      }).catch(() => {
+        wx.showToast({ title: '操作失败', icon: 'none' })
       })
     }
   },
@@ -51,6 +55,8 @@ Page({
     const id = e.currentTarget.dataset.id
     api.removeFromCart(id).then(() => {
       this.fetchCartData()
+    }).catch(() => {
+      wx.showToast({ title: '删除失败', icon: 'none' })
     })
   },
 
@@ -63,6 +69,8 @@ Page({
         if (res.confirm) {
           api.clearCart().then(() => {
             this.fetchCartData()
+          }).catch(() => {
+            wx.showToast({ title: '清空失败', icon: 'none' })
           })
         }
       }

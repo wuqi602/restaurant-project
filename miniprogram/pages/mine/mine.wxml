@@ -9,7 +9,7 @@
         <text class="nickname">{{userInfo.nickname || '点击登录'}}</text>
         <text class="uid">{{userInfo.uid ? 'ID: ' + userInfo.uid : '登录享受更多优惠'}}</text>
       </view>
-      <image class="arrow-right" src="/images/menu.png" mode="aspectFit" />
+      <text class="arrow-right">›</text>
     </view>
   </view>
 

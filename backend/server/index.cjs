@@ -178,7 +178,7 @@ app.post('/api/order/create', (req, res) => {
   const { items, remark } = req.body
   if (!items || items.length === 0) return res.json({ code: 1, message: '下单商品不能为空' })
   const totalPrice = items.reduce((s, i) => s + i.price * i.quantity, 0)
-  const discount = totalPrice >= 30 ? (totalPrice >= 30 && totalPrice < 50 ? 5 : 10) : 0
+  const discount = totalPrice >= 50 ? 10 : (totalPrice >= 30 ? 5 : 0)
   const order = {
     id: String(Date.now()), status: 'pending', statusText: '待支付',
     items, totalPrice: Math.round(totalPrice * 100) / 100,
