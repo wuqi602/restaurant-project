@@ -13,6 +13,12 @@ Page({
     ]
   },
 
+  onLoad(options) {
+    if (options.status) {
+      this.setData({ currentTab: options.status })
+    }
+  },
+
   onShow() {
     this.loadOrders()
   },

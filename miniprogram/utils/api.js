@@ -40,9 +40,6 @@ module.exports = {
   cancelOrder(id) {
     return request('/api/order/' + id + '/cancel', 'POST')
   },
-  getProductDetail(id) {
-    return request('/api/product/' + id)
-  },
   getMenu() {
     return request('/api/menu')
   },

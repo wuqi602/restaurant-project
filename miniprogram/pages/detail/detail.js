@@ -44,7 +44,11 @@ Page({
   },
 
   onBuyNow() {
-    this.onAddToCart()
-    wx.switchTab({ url: '/pages/cart/cart' })
+    if (!this.data.product) return
+    api.addToCart({ id: this.data.product.id, name: this.data.product.name, price: this.data.product.price, image: this.data.product.image || '', quantity: this.data.quantity }).then(() => {
+      wx.switchTab({ url: '/pages/cart/cart' })
+    }).catch(() => {
+      wx.showToast({ title: '添加失败', icon: 'none' })
+    })
   }
 })

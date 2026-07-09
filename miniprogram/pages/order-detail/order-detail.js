@@ -22,6 +22,7 @@ Page({
 
   onPay() {
     const order = this.data.order
+    if (!order) return
     wx.showModal({
       title: '确认支付',
       content: '支付 ¥' + order.finalPrice,
@@ -39,13 +40,15 @@ Page({
   },
 
   onCancel() {
+    const order = this.data.order
+    if (!order) return
     wx.showModal({
       title: '提示', content: '确定取消订单？',
       success: (res) => {
         if (res.confirm) {
-          api.cancelOrder(this.data.order.id).then(() => {
+          api.cancelOrder(order.id).then(() => {
             wx.showToast({ title: '已取消', icon: 'success' })
-            this.loadOrder(this.data.order.id)
+            this.loadOrder(order.id)
           })
         }
       }

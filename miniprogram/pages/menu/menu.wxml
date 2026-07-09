@@ -54,7 +54,7 @@
             </view>
             <view class="food-bottom">
               <view class="food-price">¥{{item.price}}</view>
-              <view class="btn-add" bindtap="onFoodTap" data-id="{{item.id}}" data-action="add">+</view>
+              <view class="btn-add" catchtap="onAddToCart" data-id="{{item.id}}">+</view>
             </view>
           </view>
         </view>

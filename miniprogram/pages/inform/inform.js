@@ -73,8 +73,12 @@ Page({
 
   // 全部已读
   markAllRead() {
-    const notices = this.data.notices.map(item => ({ ...item, read: true, open: false }))
-    this.setData({ notices, unread_count: 0 })
-    wx.showToast({ title: '已全部标记已读', icon: 'success' })
+    api.markAllRead().then(() => {
+      const notices = this.data.notices.map(item => ({ ...item, read: true, open: false }))
+      this.setData({ notices, unread_count: 0 })
+      wx.showToast({ title: '已全部标记已读', icon: 'success' })
+    }).catch(() => {
+      wx.showToast({ title: '操作失败', icon: 'none' })
+    })
   }
 })

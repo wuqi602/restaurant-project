@@ -25,6 +25,9 @@ Page({
         totalPrice: data.totalPrice,
         totalCount: data.totalCount
       })
+    }).catch(() => {
+      wx.showToast({ title: '加载购物车失败', icon: 'none' })
+      wx.navigateBack()
     })
   },
 
