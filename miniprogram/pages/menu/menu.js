@@ -79,6 +79,11 @@ Page({
     })
   },
 
+  onFoodTap(e) {
+    const item = e.currentTarget.dataset.item
+    wx.navigateTo({ url: '/pages/detail/detail?id=' + item.id })
+  },
+
   onAddToCart(e) {
     const item = e.currentTarget.dataset.item
     api.addToCart({ id: item.id, name: item.name, price: item.price, image: item.image || '' }).then(() => {

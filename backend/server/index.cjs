@@ -61,6 +61,16 @@ app.get('/api/menu', (req, res) => {
   res.json({ code: 0, data: { categories, menuList } })
 })
 
+// 获取商品详情
+app.get('/api/product/:id', (req, res) => {
+  const id = Number(req.params.id)
+  for (const cat of menuList) {
+    const found = cat.find(item => item.id === id)
+    if (found) return res.json({ code: 0, data: found })
+  }
+  res.status(404).json({ code: 1, message: '商品不存在' })
+})
+
 // 获取通知列表
 const notices = [
   { id: 1, tag: '优惠', type: 'promotion', title: '新用户专享福利', desc: '新用户首单立减15元', detail: '活动期间，新注册用户下单即可享受首单立减15元优惠，可与满减活动叠加使用。活动截止日期：2026年7月31日。', date: '2026-07-07', read: false, open: false },

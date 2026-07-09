@@ -21,6 +21,9 @@ function request(url, method = 'GET', data = {}) {
 }
 
 module.exports = {
+  getProductDetail(id) {
+    return request('/api/product/' + id)
+  },
   getMenu() {
     return request('/api/menu')
   },

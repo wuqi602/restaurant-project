@@ -42,7 +42,7 @@
     <view wx:for="{{menuList}}" wx:for-item="category" wx:for-index="catIdx" wx:key="*this" id="cat-{{catIdx}}">
       <view class="section-title">{{categories[catIdx].name}}</view>
       <view wx:for="{{category}}" wx:for-item="food" wx:key="id">
-        <view class="food-card">
+        <view class="food-card" bindtap="onFoodTap" data-item="{{food}}">
           <view class="food-img">
             <image wx:if="{{food.image}}" src="{{food.image}}" mode="aspectFill" style="width:100%;height:100%;border-radius:12rpx;"></image>
             <text wx:else>🍔</text>
@@ -54,7 +54,7 @@
             </view>
             <view class="food-bottom">
               <view class="food-price">¥{{food.price}}</view>
-              <view class="btn-add" bindtap="onAddToCart" data-item="{{food}}">+</view>
+              <view class="btn-add" catchtap="onAddToCart" data-item="{{food}}">+</view>
             </view>
           </view>
         </view>

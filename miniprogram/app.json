@@ -4,7 +4,8 @@
     "pages/menu/menu",
     "pages/cart/cart",
     "pages/mine/mine",
-    "pages/inform/inform"
+    "pages/inform/inform",
+    "pages/detail/detail"
   ],
   "window": {
     "navigationBarTextStyle": "black",
