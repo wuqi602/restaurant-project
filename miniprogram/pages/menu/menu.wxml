@@ -35,7 +35,7 @@
   </scroll-view>
 
   <!-- 右侧菜品滚动区 -->
-  <scroll-view class="right-menu" scroll-y scroll-into-view="{{rightToView}}" bindscroll="onRightScroll" enhanced show-scrollbar="{{false}}">
+  <scroll-view class="right-menu" scroll-y scroll-into-view="{{rightToView}}" bindscroll="onRightScroll">
     <view wx:if="{{menuList.length === 0}}" class="empty-state">
       <text>🍽️ 菜单正在准备中，请稍后再来~</text>
     </view>
@@ -54,7 +54,7 @@
             </view>
             <view class="food-bottom">
               <view class="food-price">¥{{food.price}}</view>
-              <view class="btn-add" catchtap="onAddToCart" data-item="{{food}}">+</view>
+              <view class="btn-add" catch:tap="onAddToCart" data-item="{{food}}">+</view>
             </view>
           </view>
         </view>

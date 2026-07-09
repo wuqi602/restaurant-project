@@ -80,7 +80,9 @@ Page({
   },
 
   onFoodTap(e) {
+    console.log('onFoodTap triggered', e)
     const item = e.currentTarget.dataset.item
+    if (!item) { console.warn('no item data'); return }
     wx.navigateTo({ url: '/pages/detail/detail?id=' + item.id })
   },
 
